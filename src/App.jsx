@@ -1,25 +1,110 @@
-import Footer from "./Footer";
+import {
+  createBrowserRouter,
+  createRoutesFromElements,
+  Route,
+  RouterProvider,
+} from "react-router-dom";
 import Header from "./Header";
-import Nav from "./Nav";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "./Home";
+import NewPost from "./NewPost";
+import About from "./About";
 import Root from "./routes/Root";
+import { useEffect, useState } from "react";
+import PostPage from "./PostPage";
+import Footer from "./Footer";
 
 function App() {
-  const router = createBrowserRouter([
+  const [posts, setPosts] = useState([
     {
-      path: "/",
-      element: <Root />,
+      id: 1,
+      title: "My First Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!",
+    },
+    {
+      id: 2,
+      title: "My 2nd Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!",
+    },
+    {
+      id: 3,
+      title: "My 3rd Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!",
+    },
+    {
+      id: 4,
+      title: "My Fourth Post",
+      datetime: "July 01, 2021 11:17:36 AM",
+      body: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quis consequatur expedita, assumenda similique non optio! Modi nesciunt excepturi corrupti atque blanditiis quo nobis, non optio quae possimus illum exercitationem ipsa!",
     },
   ]);
+  const [search, setSearch] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [postTitle, setPostTitle] = useState("");
+  const [postBody, setPostBody] = useState("");
+
+  useEffect(() => {
+    const filteredResults = posts.filter(
+      (post) =>
+        post.body.toLowerCase().includes(search.toLowerCase()) ||
+        post.title.toLowerCase().includes(search.toLowerCase())
+    );
+
+    setSearchResults(filteredResults.reverse());
+  }, [posts, search]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const id = posts.length ? posts[posts.length - 1].id + 1 : 1;
+    const datetime = format(new Date(), "MMMM dd, yyyy pp");
+    const newPost = { id, title: postTitle, datetime, body: postBody };
+    const allPosts = [...posts, newPost];
+    setPosts(allPosts);
+    setPostTitle("");
+    setPostBody("");
+    history.push("/");
+  };
+
+  const handleDelete = (id) => {
+    const postsList = posts.filter((post) => post.id !== id);
+    setPosts(postsList);
+    history.push("/");
+  };
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/" element={<Root search={search} setSearch={setSearch} />}>
+        <Route index element={<Home posts={searchResults} />} />
+        <Route
+          path="/post"
+          element={
+            <NewPost
+              handleSubmit={handleSubmit}
+              postTitle={postTitle}
+              setPostTitle={setPostTitle}
+              postBody={postBody}
+              setPostBody={setPostBody}
+            />
+          }
+        />
+        <Route path="/about" element={<About />} />
+        <Route
+          path="/post/:id"
+          element={<PostPage posts={posts} handleDelete={handleDelete} />}
+        />
+      </Route>
+    )
+  );
+
   return (
-    <>
-      <div className="App">
-        <RouterProvider router={router} />
-        <Nav />
-        <Header />
-        <Footer />
-      </div>
-    </>
+    <div className="App">
+      <Header title="React JS Blog" />
+
+      <RouterProvider router={router} />
+      <Footer />
+    </div>
   );
 }
 
