@@ -3,11 +3,13 @@ import Nav from "./Nav";
 import Footer from "./Footer";
 import { Outlet } from "react-router-dom";
 import PropTypes from "prop-types";
+import useWindowSize from "./hooks/useWindowSize";
 
 const Layout = ({ search, setSearch }) => {
+  const { width } = useWindowSize();
   return (
     <div className="App">
-      <Header title="React JS Blog" />
+      <Header title="React JS Blog" width={width} />
       <Nav search={search} setSearch={setSearch} />
       <Outlet />
       <Footer />
